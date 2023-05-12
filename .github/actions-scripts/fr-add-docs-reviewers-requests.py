@@ -211,17 +211,16 @@ def filter_prs(data, reviewer_id: str, project_id):
 
   pr_data = data['data']['node']['pullRequests']['nodes']
 
-  prs_to_add = []
-
-  for pr in pr_data:
-    if (
-      not pr['isDraft'] and
-      reviewer_id in [req_rev['requestedReviewer']['id'] for req_rev in pr['reviewRequests']['nodes'] if req_rev['requestedReviewer']] and
-      project_id not in [proj_card['project']['id'] for proj_card in pr['projectCards']['nodes']]
-    ):
-      prs_to_add.append(pr['id'])
-  
-  return prs_to_add
+  return [
+      pr['id'] for pr in pr_data if (not pr['isDraft'] and reviewer_id in [
+          req_rev['requestedReviewer']['id']
+          for req_rev in pr['reviewRequests']['nodes']
+          if req_rev['requestedReviewer']
+      ] and project_id not in [
+          proj_card['project']['id']
+          for proj_card in pr['projectCards']['nodes']
+      ])
+  ]
 
 def main():
   query_data = find_open_prs_for_repo(github_repo_id, num_prs_to_search)
